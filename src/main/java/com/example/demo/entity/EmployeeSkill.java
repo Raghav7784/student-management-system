@@ -1,90 +1,79 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name="employee_skills")
+@Table(name = "employee_skills")
 public class EmployeeSkill {
-	
-	@Id
-	@GeneratedValue(strategy  = GenerationType.IDENTITY)
-	private Long employeeskillId;
-	
-	@ManyToOne
-	@JoinColumn(name="employee_id")
-	private Employee employee;
-	
-	@ManyToOne
-	@JoinColumn(name="skill_id")
-	private Skill skill;
-	
-	@Column(nullable=false)
-	private String skilllevel;
-	
-	@Column(nullable=false)
-	private Integer yearsOfExperience;
-	
-	public EmployeeSkill() {
-		
-	}
 
-	public EmployeeSkill(Long employeeskillId, Employee employee, Skill skill, String skilllevel,
-			Integer yearsOfExperience) {
-		super();
-		this.employeeskillId = employeeskillId;
-		this.employee = employee;
-		this.skill = skill;
-		this.skilllevel = skilllevel;
-		this.yearsOfExperience = yearsOfExperience;
-	}
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long employeeSkillId;
 
-	public Long getEmployeeskillId() {
-		return employeeskillId;
-	}
+    @ManyToOne
+    @JoinColumn(name = "employee_id", nullable = false)
+    private Employee employee;
 
-	public void setEmployeeskillId(Long employeeskillId) {
-		this.employeeskillId = employeeskillId;
-	}
+    @ManyToOne
+    @JoinColumn(name = "skill_id", nullable = false)
+    private Skill skill;
 
-	public Employee getEmployee() {
-		return employee;
-	}
+    @Column(nullable = false)
+    private String skillLevel;
 
-	public void setEmployee(Employee employee) {
-		this.employee = employee;
-	}
+    @Column(nullable = false)
+    private Integer yearsOfExperience;
 
-	public Skill getSkill() {
-		return skill;
-	}
+    public EmployeeSkill() {
+    }
 
-	public void setSkill(Skill skill) {
-		this.skill = skill;
-	}
+    public EmployeeSkill(Long employeeSkillId, Employee employee, Skill skill,
+            String skillLevel, Integer yearsOfExperience) {
+        this.employeeSkillId = employeeSkillId;
+        this.employee = employee;
+        this.skill = skill;
+        this.skillLevel = skillLevel;
+        this.yearsOfExperience = yearsOfExperience;
+    }
 
-	public String getSkilllevel() {
-		return skilllevel;
-	}
+    public Long getEmployeeSkillId() {
+        return employeeSkillId;
+    }
 
-	public void setSkilllevel(String skilllevel) {
-		this.skilllevel = skilllevel;
-	}
+    public void setEmployeeSkillId(Long employeeSkillId) {
+        this.employeeSkillId = employeeSkillId;
+    }
 
-	public Integer getYearsOfExperience() {
-		return yearsOfExperience;
-	}
+    public Employee getEmployee() {
+        return employee;
+    }
 
-	public void setYearsOfExperience(Integer yearsOfExperience) {
-		this.yearsOfExperience = yearsOfExperience;
-	}
-	
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
+
+    public Skill getSkill() {
+        return skill;
+    }
+
+    public void setSkill(Skill skill) {
+        this.skill = skill;
+    }
+
+    public String getSkillLevel() {
+        return skillLevel;
+    }
+
+    public void setSkillLevel(String skillLevel) {
+        this.skillLevel = skillLevel;
+    }
+
+    public Integer getYearsOfExperience() {
+        return yearsOfExperience;
+    }
+
+    public void setYearsOfExperience(Integer yearsOfExperience) {
+        this.yearsOfExperience = yearsOfExperience;
+    }
 
 }
-

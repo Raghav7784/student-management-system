@@ -8,6 +8,8 @@ import com.example.demo.entity.Skill;
 
 public interface SkillRepository extends JpaRepository<Skill, Long> {
 
-    Optional<Skill> findBySkillname(String skillname);
+    Optional<Skill> findBySkillName(String skillName);
+    
+    boolean existsBySkillName(String skillName);
 
 }

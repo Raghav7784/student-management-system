@@ -8,53 +8,60 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="skills")
+@Table(name = "skills")
 public class Skill {
-	
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long skillId;
-	
-	@Column(nullable=false, unique=true)
-	private String skillname;
-	
-	private String description;
-	
-	public Skill() {
-		
-	}
 
-	public Skill(Long skillId, String skillname, String description) {
-		super();
-		this.skillId = skillId;
-		this.skillname = skillname;
-		this.description = description;
-	}
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long skillId;
 
-	public Long getSkillId() {
-		return skillId;
-	}
+    @Column(nullable = false, unique = true)
+    private String skillName;
 
-	public void setSkillId(Long skillId) {
-		this.skillId = skillId;
-	}
+    @Column(nullable = false)
+    private String category;
 
-	public String getSkillname() {
-		return skillname;
-	}
+    private String description;
 
-	public void setSkillname(String skillname) {
-		this.skillname = skillname;
-	}
+    public Skill() {
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public Skill(Long skillId, String skillName, String category, String description) {
+        this.skillId = skillId;
+        this.skillName = skillName;
+        this.category = category;
+        this.description = description;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	
+    public Long getSkillId() {
+        return skillId;
+    }
 
+    public void setSkillId(Long skillId) {
+        this.skillId = skillId;
+    }
+
+    public String getSkillName() {
+        return skillName;
+    }
+
+    public void setSkillName(String skillName) {
+        this.skillName = skillName;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }
-
