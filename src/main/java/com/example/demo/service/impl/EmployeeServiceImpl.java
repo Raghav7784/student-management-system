@@ -7,8 +7,11 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.EmployeeRequestDTO;
 import com.example.demo.dto.EmployeeResponseDTO;
+import com.example.demo.entity.Department;
 import com.example.demo.entity.Employee;
 import com.example.demo.entity.User;
+import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.repository.DepartmentRepository;
 import com.example.demo.repository.EmployeeRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.EmployeeService;
@@ -18,11 +21,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final UserRepository userRepository;
+    private final DepartmentRepository departmentRepository;
 
     public EmployeeServiceImpl(EmployeeRepository employeeRepository,
-                               UserRepository userRepository) {
+                               UserRepository userRepository,
+                               DepartmentRepository departmentRepository) {
+
         this.employeeRepository = employeeRepository;
         this.userRepository = userRepository;
+        this.departmentRepository = departmentRepository;
     }
 
     @Override
@@ -32,24 +39,27 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new RuntimeException("Phone number already exists");
         }
 
-       
         User user = userRepository.findById(employeeRequestDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
-        
+        Department department = departmentRepository
+                .findById(employeeRequestDTO.getDepartmentId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Department not found"));
+
         Employee employee = new Employee();
+
         employee.setFirstname(employeeRequestDTO.getFirstName());
         employee.setLastname(employeeRequestDTO.getLastName());
         employee.setPhone(employeeRequestDTO.getPhone());
-        employee.setDepartment(employeeRequestDTO.getDepartment());
+        employee.setDepartment(department);
         employee.setExperience(employeeRequestDTO.getExperience());
         employee.setAvailability(true);
         employee.setUser(user);
 
-        
         Employee savedEmployee = employeeRepository.save(employee);
 
-        
         return mapToResponseDTO(savedEmployee);
     }
 
@@ -57,7 +67,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeResponseDTO getEmployeeById(Long employeeId) {
 
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Employee not found"));
 
         return mapToResponseDTO(employee);
     }
@@ -73,19 +84,27 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public EmployeeResponseDTO updateEmployee(Long employeeId,
+    public EmployeeResponseDTO updateEmployee(
+            Long employeeId,
             EmployeeRequestDTO employeeRequestDTO) {
 
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Employee not found"));
 
         User user = userRepository.findById(employeeRequestDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        Department department = departmentRepository
+                .findById(employeeRequestDTO.getDepartmentId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Department not found"));
 
         employee.setFirstname(employeeRequestDTO.getFirstName());
         employee.setLastname(employeeRequestDTO.getLastName());
         employee.setPhone(employeeRequestDTO.getPhone());
-        employee.setDepartment(employeeRequestDTO.getDepartment());
+        employee.setDepartment(department);
         employee.setExperience(employeeRequestDTO.getExperience());
         employee.setUser(user);
 
@@ -98,12 +117,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void deleteEmployee(Long employeeId) {
 
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Employee not found"));
 
         employeeRepository.delete(employee);
     }
 
-    
     private EmployeeResponseDTO mapToResponseDTO(Employee employee) {
 
         EmployeeResponseDTO responseDTO = new EmployeeResponseDTO();
@@ -112,7 +131,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         responseDTO.setFirstName(employee.getFirstname());
         responseDTO.setLastName(employee.getLastname());
         responseDTO.setPhone(employee.getPhone());
-        responseDTO.setDepartment(employee.getDepartment());
+        responseDTO.setDepartment(
+                employee.getDepartment().getDepartmentName());
         responseDTO.setExperience(employee.getExperience());
         responseDTO.setAvailability(employee.getAvailability());
 

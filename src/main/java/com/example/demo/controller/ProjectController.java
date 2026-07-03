@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @PostMapping
     public ResponseEntity<ProjectResponseDTO> addProject(
             @RequestBody ProjectRequestDTO projectRequestDTO) {
@@ -42,6 +44,7 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.getAllProjects());
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<ProjectResponseDTO> updateProject(
             @PathVariable Long id,
@@ -51,7 +54,7 @@ public class ProjectController {
                 projectService.updateProject(id, projectRequestDTO));
     }
 
-    // Delete Project
+    @PreAuthorize("hasRole('MANAGER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProject(
             @PathVariable Long id) {

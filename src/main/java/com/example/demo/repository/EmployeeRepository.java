@@ -7,12 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.demo.entity.Employee;
 
-public interface EmployeeRepository extends JpaRepository<Employee,Long>{
+public interface EmployeeRepository
+        extends JpaRepository<Employee, Long> {
 
-    List<Employee> findByDepartment(String department);
-
-    List<Employee> findByAvailability(Boolean availability);
+    List<Employee> findByDepartmentDepartmentName(
+            String departmentName);
 
     Optional<Employee> findByPhone(String phone);
-
 }

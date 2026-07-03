@@ -102,7 +102,10 @@ public class UserServiceImpl implements UserService {
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
         dto.setEnabled(user.isEnabled());
-        dto.setRoleName(user.getRole().getRoleName());
+
+        if (user.getRole() != null) {
+            dto.setRoleName(user.getRole().getRoleName());
+        }
 
         return dto;
     }

@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ public class EmployeeController {
     }
 
     // Create Employee
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<EmployeeResponseDTO> addEmployee(
             @RequestBody EmployeeRequestDTO employeeRequestDTO) {
@@ -31,16 +33,19 @@ public class EmployeeController {
         return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
     }
     
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeResponseDTO> getEmployeeById(@PathVariable Long id) {
         return ResponseEntity.ok(employeeService.getEmployeeById(id));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     @GetMapping
     public ResponseEntity<List<EmployeeResponseDTO>> getAllEmployees() {
         return ResponseEntity.ok(employeeService.getAllEmployees());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<EmployeeResponseDTO> updateEmployee(
             @PathVariable Long id,
@@ -49,6 +54,7 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeService.updateEmployee(id, employeeRequestDTO));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteEmployee(@PathVariable Long id) {
 

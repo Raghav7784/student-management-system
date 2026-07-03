@@ -9,6 +9,7 @@ import com.example.demo.dto.AttendanceRequestDTO;
 import com.example.demo.dto.AttendanceResponseDTO;
 import com.example.demo.entity.Attendance;
 import com.example.demo.entity.Employee;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.AttendanceRepository;
 import com.example.demo.repository.EmployeeRepository;
 import com.example.demo.service.AttendanceService;
@@ -46,7 +47,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     public AttendanceResponseDTO getAttendanceById(Long attendanceId) {
 
         Attendance attendance = attendanceRepository.findById(attendanceId)
-                .orElseThrow(() -> new RuntimeException("Attendance not found"));
+        		.orElseThrow(() -> new ResourceNotFoundException("Attendance record not found"));
 
         return mapToDTO(attendance);
     }
@@ -65,7 +66,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                                                   AttendanceRequestDTO dto) {
 
         Attendance attendance = attendanceRepository.findById(attendanceId)
-                .orElseThrow(() -> new RuntimeException("Attendance not found"));
+        		.orElseThrow(() -> new ResourceNotFoundException("Attendance record not found"));
 
         Employee employee = employeeRepository.findById(dto.getEmployeeId())
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
@@ -83,8 +84,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     public void deleteAttendance(Long attendanceId) {
 
         Attendance attendance = attendanceRepository.findById(attendanceId)
-                .orElseThrow(() -> new RuntimeException("Attendance not found"));
-
+        		.orElseThrow(() -> new ResourceNotFoundException("Attendance record not found"));
         attendanceRepository.delete(attendance);
     }
 

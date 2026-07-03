@@ -1,5 +1,7 @@
 package com.example.demo.service.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,6 +16,9 @@ import com.example.demo.service.ProjectService;
 @Service
 public class ProjectServiceImpl implements ProjectService {
 
+    private static final Logger logger =
+            LoggerFactory.getLogger(ProjectServiceImpl.class);
+
     private final ProjectRepository projectRepository;
 
     public ProjectServiceImpl(ProjectRepository projectRepository) {
@@ -23,7 +28,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectResponseDTO addProject(ProjectRequestDTO projectRequestDTO) {
 
-        if (projectRepository.findByProjectName(projectRequestDTO.getProjectName()).isPresent()) {
+        if (projectRepository.findByProjectName(
+                projectRequestDTO.getProjectName()).isPresent()) {
+
             throw new RuntimeException("Project already exists");
         }
 
@@ -35,9 +42,14 @@ public class ProjectServiceImpl implements ProjectService {
         project.setStartDate(projectRequestDTO.getStartDate());
         project.setEndDate(projectRequestDTO.getEndDate());
         project.setStatus(projectRequestDTO.getStatus());
-        project.setTechnologyStack(projectRequestDTO.getTechnologyStack());
+        project.setTechnologyStack(
+                projectRequestDTO.getTechnologyStack());
 
-        Project savedProject = projectRepository.save(project);
+        Project savedProject =
+                projectRepository.save(project);
+
+        logger.info("Project created: {}",
+                savedProject.getProjectName());
 
         return mapToDTO(savedProject);
     }
@@ -46,7 +58,8 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectResponseDTO getProjectById(Long projectId) {
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Project not found"));
 
         return mapToDTO(project);
     }
@@ -61,11 +74,13 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectResponseDTO updateProject(Long projectId,
-                                            ProjectRequestDTO projectRequestDTO) {
+    public ProjectResponseDTO updateProject(
+            Long projectId,
+            ProjectRequestDTO projectRequestDTO) {
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Project not found"));
 
         project.setProjectName(projectRequestDTO.getProjectName());
         project.setClientName(projectRequestDTO.getClientName());
@@ -73,9 +88,11 @@ public class ProjectServiceImpl implements ProjectService {
         project.setStartDate(projectRequestDTO.getStartDate());
         project.setEndDate(projectRequestDTO.getEndDate());
         project.setStatus(projectRequestDTO.getStatus());
-        project.setTechnologyStack(projectRequestDTO.getTechnologyStack());
+        project.setTechnologyStack(
+                projectRequestDTO.getTechnologyStack());
 
-        Project updatedProject = projectRepository.save(project);
+        Project updatedProject =
+                projectRepository.save(project);
 
         return mapToDTO(updatedProject);
     }
@@ -84,12 +101,12 @@ public class ProjectServiceImpl implements ProjectService {
     public void deleteProject(Long projectId) {
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Project not found"));
 
         projectRepository.delete(project);
     }
 
-    // Helper Method
     private ProjectResponseDTO mapToDTO(Project project) {
 
         ProjectResponseDTO dto = new ProjectResponseDTO();

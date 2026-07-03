@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.dto.SkillRequestDTO;
 import com.example.demo.dto.SkillResponseDTO;
 import com.example.demo.entity.Skill;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.SkillRepository;
 import com.example.demo.service.SkillService;
 
@@ -42,7 +43,7 @@ public class SkillServiceImpl implements SkillService {
     public SkillResponseDTO getSkillById(Long skillId) {
 
         Skill skill = skillRepository.findById(skillId)
-                .orElseThrow(() -> new RuntimeException("Skill not found"));
+        		.orElseThrow(() -> new ResourceNotFoundException("Skill not found"));
 
         return mapToResponseDTO(skill);
     }
@@ -60,7 +61,7 @@ public class SkillServiceImpl implements SkillService {
     public SkillResponseDTO updateSkill(Long skillId, SkillRequestDTO skillRequestDTO) {
 
         Skill skill = skillRepository.findById(skillId)
-                .orElseThrow(() -> new RuntimeException("Skill not found"));
+        		.orElseThrow(() -> new ResourceNotFoundException("Skill not found"));
 
         skill.setSkillName(skillRequestDTO.getSkillName());
         skill.setCategory(skillRequestDTO.getCategory());
@@ -75,7 +76,7 @@ public class SkillServiceImpl implements SkillService {
     public void deleteSkill(Long skillId) {
 
         Skill skill = skillRepository.findById(skillId)
-                .orElseThrow(() -> new RuntimeException("Skill not found"));
+        		.orElseThrow(() -> new ResourceNotFoundException("Skill not found"));
 
         skillRepository.delete(skill);
     }
