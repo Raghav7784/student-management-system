@@ -21,7 +21,7 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping
     public ResponseEntity<ProjectResponseDTO> addProject(
             @RequestBody ProjectRequestDTO projectRequestDTO) {
@@ -44,7 +44,7 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.getAllProjects());
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<ProjectResponseDTO> updateProject(
             @PathVariable Long id,
@@ -54,7 +54,7 @@ public class ProjectController {
                 projectService.updateProject(id, projectRequestDTO));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProject(
             @PathVariable Long id) {

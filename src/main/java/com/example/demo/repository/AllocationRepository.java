@@ -8,6 +8,9 @@ import java.util.List;
 public interface AllocationRepository
         extends JpaRepository<Allocation, Long> {
 
-    List<Allocation> findByEmployeeEmployeeId(Long employeeId);
+    List<Allocation> findByEmployeeEmployeeId(
+            Long employeeId);
 
+    List<Allocation> findByProjectProjectId(
+            Long projectId);
 }

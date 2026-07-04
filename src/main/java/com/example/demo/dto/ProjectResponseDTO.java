@@ -91,6 +91,11 @@ public class ProjectResponseDTO {
 	public void setTechnologyStack(String technologyStack) {
 		this.technologyStack = technologyStack;
 	}
+
+	public void setBudget(Double budget) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 
 }

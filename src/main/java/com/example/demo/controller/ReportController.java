@@ -1,46 +1,59 @@
 package com.example.demo.controller;
 
 import java.util.List;
-import java.util.Map;
-import org.springframework.security.access.prepost.PreAuthorize;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.demo.dto.ProjectAllocationDTO;
+import com.example.demo.dto.SkillResponseDTO;
+import com.example.demo.dto.UtilizationDTO;
 import com.example.demo.service.ReportService;
 
-@PreAuthorize(
-	    "hasRole('ADMIN') or hasRole('AUDITOR')"
-	)
 @RestController
 @RequestMapping("/api/reports")
-@CrossOrigin("*")
 public class ReportController {
 
-    @Autowired
-    private ReportService reportService;
+    private final ReportService reportService;
+
+    public ReportController(
+            ReportService reportService) {
+
+        this.reportService =
+                reportService;
+    }
 
     @GetMapping("/skills")
-    public Map<String, List<String>>
-    getSkillReport() {
+    public List<SkillResponseDTO>
+    getAllSkillsReport() {
 
         return reportService
-                .getSkillReport();
+                .getAllSkillsReport();
+    }
+
+    @GetMapping("/skills/{id}")
+    public SkillResponseDTO
+    getSkillReportById(
+            @PathVariable Long id) {
+
+        return reportService
+                .getSkillReportById(id);
     }
 
     @GetMapping("/utilization")
-    public Map<String, Integer>
+    public List<UtilizationDTO>
     getUtilizationReport() {
 
         return reportService
                 .getUtilizationReport();
     }
 
-    @GetMapping("/projects")
-    public Map<String, List<String>>
-    getProjectAllocationReport() {
+    @GetMapping("/project/{projectId}")
+    public List<ProjectAllocationDTO>
+    getProjectAllocationReport(
+            @PathVariable Long projectId) {
 
         return reportService
-                .getProjectAllocationReport();
+                .getProjectAllocationReport(
+                        projectId);
     }
 }

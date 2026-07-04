@@ -3,6 +3,8 @@ package com.example.demo.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.PayrollRequestDTO;
@@ -17,6 +19,9 @@ import com.example.demo.service.PayrollService;
 @Service
 public class PayrollServiceImpl implements PayrollService {
 
+    private static final Logger logger =
+            LoggerFactory.getLogger(PayrollServiceImpl.class);
+
     private final PayrollRepository payrollRepository;
     private final EmployeeRepository employeeRepository;
 
@@ -30,8 +35,18 @@ public class PayrollServiceImpl implements PayrollService {
     @Override
     public PayrollResponseDTO addPayroll(PayrollRequestDTO dto) {
 
+        logger.info("Creating payroll for Employee ID: {}",
+                dto.getEmployeeId());
+
         Employee employee = employeeRepository.findById(dto.getEmployeeId())
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
+                .orElseThrow(() -> {
+
+                    logger.error("Employee not found with ID: {}",
+                            dto.getEmployeeId());
+
+                    return new ResourceNotFoundException(
+                            "Employee not found");
+                });
 
         Payroll payroll = new Payroll();
 
@@ -49,20 +64,34 @@ public class PayrollServiceImpl implements PayrollService {
 
         Payroll saved = payrollRepository.save(payroll);
 
+        logger.info("Payroll created successfully for Employee ID: {}",
+                dto.getEmployeeId());
+
         return mapToDTO(saved);
     }
 
     @Override
     public PayrollResponseDTO getPayrollById(Long payrollId) {
 
+        logger.info("Fetching payroll with ID: {}", payrollId);
+
         Payroll payroll = payrollRepository.findById(payrollId)
-        		.orElseThrow(() -> new ResourceNotFoundException("Payroll record not found"));
+                .orElseThrow(() -> {
+
+                    logger.error("Payroll not found with ID: {}",
+                            payrollId);
+
+                    return new ResourceNotFoundException(
+                            "Payroll record not found");
+                });
 
         return mapToDTO(payroll);
     }
 
     @Override
     public List<PayrollResponseDTO> getAllPayrolls() {
+
+        logger.info("Fetching all payroll records");
 
         return payrollRepository.findAll()
                 .stream()
@@ -74,11 +103,27 @@ public class PayrollServiceImpl implements PayrollService {
     public PayrollResponseDTO updatePayroll(Long payrollId,
                                             PayrollRequestDTO dto) {
 
+        logger.info("Updating payroll with ID: {}", payrollId);
+
         Payroll payroll = payrollRepository.findById(payrollId)
-        		.orElseThrow(() -> new ResourceNotFoundException("Payroll record not found"));
+                .orElseThrow(() -> {
+
+                    logger.error("Payroll not found with ID: {}",
+                            payrollId);
+
+                    return new ResourceNotFoundException(
+                            "Payroll record not found");
+                });
 
         Employee employee = employeeRepository.findById(dto.getEmployeeId())
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
+                .orElseThrow(() -> {
+
+                    logger.error("Employee not found with ID: {}",
+                            dto.getEmployeeId());
+
+                    return new ResourceNotFoundException(
+                            "Employee not found");
+                });
 
         payroll.setEmployee(employee);
         payroll.setBasicSalary(dto.getBasicSalary());
@@ -94,16 +139,31 @@ public class PayrollServiceImpl implements PayrollService {
 
         Payroll updated = payrollRepository.save(payroll);
 
+        logger.info("Payroll updated successfully with ID: {}",
+                payrollId);
+
         return mapToDTO(updated);
     }
 
     @Override
     public void deletePayroll(Long payrollId) {
 
+        logger.info("Deleting payroll with ID: {}", payrollId);
+
         Payroll payroll = payrollRepository.findById(payrollId)
-        		.orElseThrow(() -> new ResourceNotFoundException("Payroll record not found"));
+                .orElseThrow(() -> {
+
+                    logger.error("Payroll not found with ID: {}",
+                            payrollId);
+
+                    return new ResourceNotFoundException(
+                            "Payroll record not found");
+                });
 
         payrollRepository.delete(payroll);
+
+        logger.info("Payroll deleted successfully with ID: {}",
+                payrollId);
     }
 
     private PayrollResponseDTO mapToDTO(Payroll payroll) {
@@ -112,9 +172,11 @@ public class PayrollServiceImpl implements PayrollService {
 
         dto.setPayrollId(payroll.getPayrollId());
         dto.setEmployeeId(payroll.getEmployee().getEmployeeId());
-        dto.setEmployeeName(payroll.getEmployee().getFirstname()
+
+        dto.setEmployeeName(
+                payroll.getEmployee().getFirstname()
                 + " "
-                + payroll.getEmployee().getFirstname());
+                + payroll.getEmployee().getLastname());
 
         dto.setBasicSalary(payroll.getBasicSalary());
         dto.setBonus(payroll.getBonus());

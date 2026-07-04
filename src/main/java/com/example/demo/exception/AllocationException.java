@@ -1,11 +1,8 @@
 package com.example.demo.exception;
 
-public class AllocationException
-        extends RuntimeException {
+public class AllocationException extends RuntimeException {
 
-    public AllocationException(
-            String message) {
-
+    public AllocationException(String message) {
         super(message);
     }
 }

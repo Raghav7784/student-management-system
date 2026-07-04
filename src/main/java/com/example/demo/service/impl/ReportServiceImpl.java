@@ -1,116 +1,170 @@
 package com.example.demo.service.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.ProjectAllocationDTO;
+import com.example.demo.dto.SkillResponseDTO;
+import com.example.demo.dto.UtilizationDTO;
 import com.example.demo.entity.Allocation;
 import com.example.demo.entity.Employee;
-import com.example.demo.entity.EmployeeSkill;
+import com.example.demo.entity.Skill;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.AllocationRepository;
 import com.example.demo.repository.EmployeeRepository;
-import com.example.demo.repository.EmployeeSkillRepository;
+import com.example.demo.repository.SkillRepository;
 import com.example.demo.service.ReportService;
 
 @Service
-public class ReportServiceImpl implements ReportService {
+public class ReportServiceImpl
+        implements ReportService {
 
-    @Autowired
-    private EmployeeSkillRepository employeeSkillRepository;
+    private final SkillRepository skillRepository;
+    private final EmployeeRepository employeeRepository;
+    private final AllocationRepository allocationRepository;
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
+    public ReportServiceImpl(
+            SkillRepository skillRepository,
+            EmployeeRepository employeeRepository,
+            AllocationRepository allocationRepository) {
 
-    @Autowired
-    private AllocationRepository allocationRepository;
-
-    @Override
-    public Map<String, List<String>> getSkillReport() {
-
-        Map<String, List<String>> report = new HashMap<>();
-
-        List<EmployeeSkill> skills =
-                employeeSkillRepository.findAll();
-
-        for (EmployeeSkill es : skills) {
-
-            String skillName =
-                    es.getSkill().getSkillName();
-
-            String employeeName =
-                    es.getEmployee().getLastname()
-                    + " "
-                    + es.getEmployee().getLastname();
-
-            report.computeIfAbsent(
-                    skillName,
-                    k -> new ArrayList<>())
-                    .add(employeeName);
-        }
-
-        return report;
+        this.skillRepository = skillRepository;
+        this.employeeRepository = employeeRepository;
+        this.allocationRepository = allocationRepository;
     }
 
     @Override
-    public Map<String, Integer> getUtilizationReport() {
+    public List<SkillResponseDTO>
+    getAllSkillsReport() {
 
-        Map<String, Integer> report = new HashMap<>();
-
-        List<Employee> employees = employeeRepository.findAll();
-
-        List<Allocation> allocations = allocationRepository.findAll();
-
-        for (Employee employee : employees) {
-
-            int totalAllocation = allocations.stream()
-                    .filter(a ->
-                            a.getEmployee() != null &&
-                            a.getEmployee().getEmployeeId() == employee.getEmployeeId())
-                    .mapToInt(Allocation::getAllocationPercentage)
-                    .sum();
-
-            String employeeName =
-                    employee.getLastname() + " " + employee.getFirstname();
-
-            report.put(employeeName, totalAllocation);
-        }
-
-        return report;
+        return skillRepository.findAll()
+                .stream()
+                .map(this::mapSkillToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Map<String, List<String>>
-    getProjectAllocationReport() {
+    public SkillResponseDTO
+    getSkillReportById(Long skillId) {
 
-        Map<String, List<String>> report =
-                new HashMap<>();
+        Skill skill =
+                skillRepository.findById(skillId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Skill not found"));
+
+        return mapSkillToDTO(skill);
+    }
+
+    @Override
+    public List<UtilizationDTO>
+    getUtilizationReport() {
+
+        List<UtilizationDTO> result =
+                new ArrayList<>();
+
+        List<Employee> employees =
+                employeeRepository.findAll();
 
         List<Allocation> allocations =
                 allocationRepository.findAll();
 
-        for (Allocation allocation : allocations) {
+        for (Employee employee : employees) {
 
-            String projectName =
-                    allocation.getProject()
-                            .getProjectName();
+            int billable =
+                    allocations.stream()
+                    .filter(a ->
+                            a.getEmployee()
+                            .getEmployeeId()
+                            .equals(
+                                    employee
+                                    .getEmployeeId()))
+                    .mapToInt(
+                            Allocation::
+                            getAllocationPercentage)
+                    .sum();
+
+            int bench = 100 - billable;
+
+            if (bench < 0) {
+                bench = 0;
+            }
 
             String employeeName =
-                    allocation.getEmployee()
-                            .getLastname()
+                    employee.getFirstname()
                     + " "
-                    + allocation.getEmployee()
-                            .getLastname();
+                    + employee.getLastname();
 
-            report.computeIfAbsent(
-                    projectName,
-                    k -> new ArrayList<>())
-                    .add(employeeName);
+            result.add(
+                    new UtilizationDTO(
+                            employeeName,
+                            billable,
+                            bench
+                    )
+            );
         }
 
-        return report;
+        return result;
+    }
+
+    @Override
+    public List<ProjectAllocationDTO>
+    getProjectAllocationReport(
+            Long projectId) {
+
+        List<Allocation> allocations =
+                allocationRepository
+                .findByProjectProjectId(
+                        projectId);
+
+        return allocations.stream()
+                .map(allocation -> {
+
+                    String employeeName =
+                            allocation
+                            .getEmployee()
+                            .getFirstname()
+                            + " "
+                            + allocation
+                            .getEmployee()
+                            .getLastname();
+
+                    String projectName =
+                            allocation
+                            .getProject()
+                            .getProjectName();
+
+                    return new ProjectAllocationDTO(
+                            employeeName,
+                            projectName,
+                            allocation
+                            .getAllocationPercentage()
+                    );
+
+                }).collect(Collectors.toList());
+    }
+
+    private SkillResponseDTO
+    mapSkillToDTO(Skill skill) {
+
+        SkillResponseDTO dto =
+                new SkillResponseDTO();
+
+        dto.setSkillId(
+                skill.getSkillId());
+
+        dto.setSkillName(
+                skill.getSkillName());
+
+        dto.setCategory(
+                skill.getCategory());
+
+        dto.setDescription(
+                skill.getDescription());
+
+        return dto;
     }
 }

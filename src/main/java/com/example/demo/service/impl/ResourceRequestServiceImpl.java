@@ -1,46 +1,57 @@
 package com.example.demo.service.impl;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import com.example.demo.dto.ResourceRequestDTO;
 import com.example.demo.entity.Project;
 import com.example.demo.entity.ResourceRequest;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.ProjectRepository;
 import com.example.demo.repository.ResourceRequestRepository;
-import com.example.demo.service.AuditLogService;
 import com.example.demo.service.ResourceRequestService;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-
 @Service
-public class ResourceRequestServiceImpl implements ResourceRequestService {
-	
-	
-	private static final Logger logger =
-	        LoggerFactory.getLogger(
-	                ResourceRequestServiceImpl.class);
-	@Autowired
-	private AuditLogService auditLogService;
+public class ResourceRequestServiceImpl
+        implements ResourceRequestService {
 
-    @Autowired
-    private ResourceRequestRepository requestRepository;
+    private static final Logger logger =
+            LoggerFactory.getLogger(
+                    ResourceRequestServiceImpl.class);
 
-    @Autowired
-    private ProjectRepository projectRepository;
+    private final ResourceRequestRepository requestRepository;
+    private final ProjectRepository projectRepository;
+
+    public ResourceRequestServiceImpl(
+            ResourceRequestRepository requestRepository,
+            ProjectRepository projectRepository) {
+
+        this.requestRepository = requestRepository;
+        this.projectRepository = projectRepository;
+    }
 
     @Override
-    public ResourceRequest createRequest(ResourceRequestDTO dto) {
+    public ResourceRequest createRequest(
+            ResourceRequestDTO dto) {
 
-    	
-    	logger.info(
-    	        "Resource request created for skill: {}",
-    	        dto.getRequiredSkill());
+        logger.info(
+                "Creating resource request for project ID: {}",
+                dto.getProjectId());
+
         Project project = projectRepository
                 .findById(dto.getProjectId())
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> {
+
+                    logger.error(
+                            "Project not found with ID: {}",
+                            dto.getProjectId());
+
+                    return new ResourceNotFoundException(
+                            "Project not found");
+                });
 
         ResourceRequest request = new ResourceRequest();
 
@@ -49,45 +60,107 @@ public class ResourceRequestServiceImpl implements ResourceRequestService {
         request.setRequiredCount(dto.getRequiredCount());
         request.setStatus(dto.getStatus());
 
-        return requestRepository.save(request);
+        ResourceRequest saved =
+                requestRepository.save(request);
+
+        logger.info(
+                "Resource request created successfully for skill: {}",
+                dto.getRequiredSkill());
+
+        return saved;
     }
 
     @Override
     public List<ResourceRequest> getAllRequests() {
+
+        logger.info("Fetching all resource requests");
+
         return requestRepository.findAll();
     }
 
     @Override
     public ResourceRequest getRequestById(Long id) {
-    	
-    	logger.warn(
-    	        "Resource Request not found: {}",
-    	        id);
+
+        logger.info(
+                "Fetching resource request with ID: {}",
+                id);
 
         return requestRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Request not found"));
+                .orElseThrow(() -> {
+
+                    logger.error(
+                            "Resource request not found with ID: {}",
+                            id);
+
+                    return new ResourceNotFoundException(
+                            "Request not found");
+                });
     }
 
     @Override
-    public ResourceRequest updateRequest(Long id,
-                                         ResourceRequestDTO dto) {
+    public ResourceRequest updateRequest(
+            Long id,
+            ResourceRequestDTO dto) {
+
+        logger.info(
+                "Updating resource request with ID: {}",
+                id);
 
         ResourceRequest request =
                 requestRepository.findById(id)
-                        .orElseThrow(() ->
-                                new RuntimeException("Request not found"));
+                        .orElseThrow(() -> {
 
-        request.setRequiredSkill(dto.getRequiredSkill());
-        request.setRequiredCount(dto.getRequiredCount());
-        request.setStatus(dto.getStatus());
+                            logger.error(
+                                    "Request not found with ID: {}",
+                                    id);
 
-        return requestRepository.save(request);
+                            return new ResourceNotFoundException(
+                                    "Request not found");
+                        });
+
+        request.setRequiredSkill(
+                dto.getRequiredSkill());
+
+        request.setRequiredCount(
+                dto.getRequiredCount());
+
+        request.setStatus(
+                dto.getStatus());
+
+        ResourceRequest updated =
+                requestRepository.save(request);
+
+        logger.info(
+                "Resource request updated successfully with ID: {}",
+                id);
+
+        return updated;
     }
 
     @Override
     public void deleteRequest(Long id) {
 
-        requestRepository.deleteById(id);
+        logger.info(
+                "Deleting resource request with ID: {}",
+                id);
+
+        ResourceRequest request =
+                requestRepository.findById(id)
+                        .orElseThrow(() -> {
+
+                            logger.error(
+                                    "Request not found with ID: {}",
+                                    id);
+
+                            return new ResourceNotFoundException(
+                                    "Request not found");
+                        });
+
+        requestRepository.delete(request);
+
+        logger.info(
+                "Resource request deleted successfully with ID: {}",
+                id);
     }
 
     @Override
@@ -96,9 +169,14 @@ public class ResourceRequestServiceImpl implements ResourceRequestService {
         ResourceRequest request =
                 requestRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException("Request not found"));
+                                new ResourceNotFoundException(
+                                        "Request not found"));
 
         request.setStatus("SUBMITTED");
+
+        logger.info(
+                "Resource request submitted with ID: {}",
+                id);
 
         return requestRepository.save(request);
     }
@@ -109,9 +187,14 @@ public class ResourceRequestServiceImpl implements ResourceRequestService {
         ResourceRequest request =
                 requestRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException("Request not found"));
+                                new ResourceNotFoundException(
+                                        "Request not found"));
 
         request.setStatus("APPROVED");
+
+        logger.info(
+                "Resource request approved with ID: {}",
+                id);
 
         return requestRepository.save(request);
     }
@@ -122,9 +205,14 @@ public class ResourceRequestServiceImpl implements ResourceRequestService {
         ResourceRequest request =
                 requestRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException("Request not found"));
+                                new ResourceNotFoundException(
+                                        "Request not found"));
 
         request.setStatus("ALLOCATED");
+
+        logger.info(
+                "Resource request allocated with ID: {}",
+                id);
 
         return requestRepository.save(request);
     }
@@ -135,9 +223,14 @@ public class ResourceRequestServiceImpl implements ResourceRequestService {
         ResourceRequest request =
                 requestRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException("Request not found"));
+                                new ResourceNotFoundException(
+                                        "Request not found"));
 
         request.setStatus("COMPLETED");
+
+        logger.info(
+                "Resource request completed with ID: {}",
+                id);
 
         return requestRepository.save(request);
     }

@@ -1,11 +1,16 @@
 package com.example.demo.entity;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -39,12 +44,28 @@ public class Employee {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToMany
+    @JoinTable(
+            name = "employee_skills",
+            joinColumns = @JoinColumn(name = "employee_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private Set<Skill> skills = new HashSet<>();
+
     public Employee() {
     }
 
-    public Employee(long employeeId, String firstname, String lastname,
-                    String phone, Department department,
-                    Integer experience, boolean availability, User user) {
+    public Employee(
+            Long employeeId,
+            String firstname,
+            String lastname,
+            String phone,
+            Department department,
+            Integer experience,
+            boolean availability,
+            User user,
+            Set<Skill> skills) {
+
         this.employeeId = employeeId;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -53,6 +74,7 @@ public class Employee {
         this.experience = experience;
         this.availability = availability;
         this.user = user;
+        this.skills = skills;
     }
 
     public Long getEmployeeId() {
@@ -119,8 +141,15 @@ public class Employee {
         this.user = user;
     }
 
-	public String getFirstName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Set<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(Set<Skill> skills) {
+        this.skills = skills;
+    }
+
+    public String getFirstName() {
+        return firstname;
+    }
 }

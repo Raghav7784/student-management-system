@@ -3,6 +3,8 @@ package com.example.demo.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.SkillRequestDTO;
@@ -15,6 +17,9 @@ import com.example.demo.service.SkillService;
 @Service
 public class SkillServiceImpl implements SkillService {
 
+    private static final Logger logger =
+            LoggerFactory.getLogger(SkillServiceImpl.class);
+
     private final SkillRepository skillRepository;
 
     public SkillServiceImpl(SkillRepository skillRepository) {
@@ -24,7 +29,15 @@ public class SkillServiceImpl implements SkillService {
     @Override
     public SkillResponseDTO addSkill(SkillRequestDTO skillRequestDTO) {
 
-        if (skillRepository.existsBySkillName(skillRequestDTO.getSkillName())) {
+        logger.info("Adding skill: {}",
+                skillRequestDTO.getSkillName());
+
+        if (skillRepository.existsBySkillName(
+                skillRequestDTO.getSkillName())) {
+
+            logger.warn("Skill already exists: {}",
+                    skillRequestDTO.getSkillName());
+
             throw new RuntimeException("Skill already exists");
         }
 
@@ -36,20 +49,34 @@ public class SkillServiceImpl implements SkillService {
 
         Skill savedSkill = skillRepository.save(skill);
 
+        logger.info("Skill created successfully with ID: {}",
+                savedSkill.getSkillId());
+
         return mapToResponseDTO(savedSkill);
     }
 
     @Override
     public SkillResponseDTO getSkillById(Long skillId) {
 
+        logger.info("Fetching skill with ID: {}", skillId);
+
         Skill skill = skillRepository.findById(skillId)
-        		.orElseThrow(() -> new ResourceNotFoundException("Skill not found"));
+                .orElseThrow(() -> {
+
+                    logger.error("Skill not found with ID: {}",
+                            skillId);
+
+                    return new ResourceNotFoundException(
+                            "Skill not found");
+                });
 
         return mapToResponseDTO(skill);
     }
 
     @Override
     public List<SkillResponseDTO> getAllSkills() {
+
+        logger.info("Fetching all skills");
 
         return skillRepository.findAll()
                 .stream()
@@ -58,10 +85,21 @@ public class SkillServiceImpl implements SkillService {
     }
 
     @Override
-    public SkillResponseDTO updateSkill(Long skillId, SkillRequestDTO skillRequestDTO) {
+    public SkillResponseDTO updateSkill(
+            Long skillId,
+            SkillRequestDTO skillRequestDTO) {
+
+        logger.info("Updating skill with ID: {}", skillId);
 
         Skill skill = skillRepository.findById(skillId)
-        		.orElseThrow(() -> new ResourceNotFoundException("Skill not found"));
+                .orElseThrow(() -> {
+
+                    logger.error("Skill not found with ID: {}",
+                            skillId);
+
+                    return new ResourceNotFoundException(
+                            "Skill not found");
+                });
 
         skill.setSkillName(skillRequestDTO.getSkillName());
         skill.setCategory(skillRequestDTO.getCategory());
@@ -69,16 +107,31 @@ public class SkillServiceImpl implements SkillService {
 
         Skill updatedSkill = skillRepository.save(skill);
 
+        logger.info("Skill updated successfully: {}",
+                updatedSkill.getSkillName());
+
         return mapToResponseDTO(updatedSkill);
     }
 
     @Override
     public void deleteSkill(Long skillId) {
 
+        logger.info("Deleting skill with ID: {}", skillId);
+
         Skill skill = skillRepository.findById(skillId)
-        		.orElseThrow(() -> new ResourceNotFoundException("Skill not found"));
+                .orElseThrow(() -> {
+
+                    logger.error("Skill not found with ID: {}",
+                            skillId);
+
+                    return new ResourceNotFoundException(
+                            "Skill not found");
+                });
 
         skillRepository.delete(skill);
+
+        logger.info("Skill deleted successfully with ID: {}",
+                skillId);
     }
 
     private SkillResponseDTO mapToResponseDTO(Skill skill) {

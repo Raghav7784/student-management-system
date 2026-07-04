@@ -3,7 +3,8 @@ package com.example.demo.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entity.AuditLog;
@@ -14,12 +15,26 @@ import com.example.demo.service.AuditLogService;
 public class AuditLogServiceImpl
         implements AuditLogService {
 
-    @Autowired
-    private AuditLogRepository auditLogRepository;
+    private static final Logger logger =
+            LoggerFactory.getLogger(
+                    AuditLogServiceImpl.class);
+
+    private final AuditLogRepository auditLogRepository;
+
+    public AuditLogServiceImpl(
+            AuditLogRepository auditLogRepository) {
+
+        this.auditLogRepository = auditLogRepository;
+    }
 
     @Override
     public void saveLog(String action,
                         String performedBy) {
+
+        logger.info(
+                "Audit Log - Action: {}, Performed By: {}",
+                action,
+                performedBy);
 
         AuditLog log = new AuditLog();
 
@@ -32,6 +47,8 @@ public class AuditLogServiceImpl
 
     @Override
     public List<AuditLog> getAllLogs() {
+
+        logger.info("Fetching all audit logs");
 
         return auditLogRepository.findAll();
     }

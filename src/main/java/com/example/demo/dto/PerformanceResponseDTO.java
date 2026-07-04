@@ -35,8 +35,8 @@ public class PerformanceResponseDTO {
         return employeeName;
     }
 
-    public void setEmployeeName(long l) {
-        this.employeeName=employeeName;
+    public void setEmployeeName(String employeeName) {
+        this.employeeName = employeeName;
     }
 
     public String getReviewPeriod() {

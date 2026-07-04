@@ -1,18 +1,18 @@
 package com.example.demo.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
 import com.example.demo.dto.ResourceRequestDTO;
 import com.example.demo.entity.ResourceRequest;
 import com.example.demo.service.ResourceRequestService;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-@PreAuthorize("hasRole('MANAGER')")
 @RestController
 @RequestMapping("/api/resource-requests")
+@PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
 public class ResourceRequestController {
 
     @Autowired

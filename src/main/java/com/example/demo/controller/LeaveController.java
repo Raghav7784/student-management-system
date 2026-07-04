@@ -20,7 +20,8 @@ public class LeaveController {
         this.leaveService = leaveService;
     }
 
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    // Apply Leave
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     @PostMapping
     public ResponseEntity<LeaveResponseDTO> applyLeave(
             @RequestBody LeaveRequestDTO dto) {
@@ -28,6 +29,7 @@ public class LeaveController {
         return ResponseEntity.ok(leaveService.applyLeave(dto));
     }
 
+    // Get All Leaves
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<LeaveResponseDTO>> getAllLeaves() {
@@ -35,6 +37,7 @@ public class LeaveController {
         return ResponseEntity.ok(leaveService.getAllLeaves());
     }
 
+    // Get Leave By ID
     @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     @GetMapping("/{id}")
     public ResponseEntity<LeaveResponseDTO> getLeaveById(
@@ -43,22 +46,27 @@ public class LeaveController {
         return ResponseEntity.ok(leaveService.getLeaveById(id));
     }
 
+    // Approve Leave
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}/approve")
     public ResponseEntity<LeaveResponseDTO> approveLeave(
             @PathVariable Long id) {
 
-        return ResponseEntity.ok(leaveService.approveLeave(id));
+        return ResponseEntity.ok(
+                leaveService.approveLeave(id));
     }
 
+    // Reject Leave
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}/reject")
     public ResponseEntity<LeaveResponseDTO> rejectLeave(
             @PathVariable Long id) {
 
-        return ResponseEntity.ok(leaveService.rejectLeave(id));
+        return ResponseEntity.ok(
+                leaveService.rejectLeave(id));
     }
 
+    // Delete Leave
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteLeave(
@@ -66,9 +74,11 @@ public class LeaveController {
 
         leaveService.deleteLeave(id);
 
-        return ResponseEntity.ok("Leave deleted successfully");
+        return ResponseEntity.ok(
+                "Leave deleted successfully");
     }
 
+    // Get Leaves By Employee
     @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     @GetMapping("/employee/{employeeId}")
     public ResponseEntity<List<LeaveResponseDTO>> getEmployeeLeaves(

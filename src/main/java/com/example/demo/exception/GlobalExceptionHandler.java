@@ -4,106 +4,98 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(
-                    GlobalExceptionHandler.class);
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Object> handleUserNotFound(
+            UserNotFoundException ex) {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>>
-    handleResourceNotFound(
-            ResourceNotFoundException ex) {
+        return buildResponse(ex.getMessage(),
+                HttpStatus.NOT_FOUND);
+    }
 
-        logger.error(
-                "Resource Not Found: {}",
-                ex.getMessage());
+    @ExceptionHandler(ProjectNotFoundException.class)
+    public ResponseEntity<Object> handleProjectNotFound(
+            ProjectNotFoundException ex) {
 
-        Map<String, Object> error =
-                new LinkedHashMap<>();
+        return buildResponse(ex.getMessage(),
+                HttpStatus.NOT_FOUND);
+    }
 
-        error.put("timestamp",
-                LocalDateTime.now());
+    @ExceptionHandler(SkillNotFoundException.class)
+    public ResponseEntity<Object> handleSkillNotFound(
+            SkillNotFoundException ex) {
 
-        error.put("status",
-                HttpStatus.NOT_FOUND.value());
-
-        error.put("error",
-                "Not Found");
-
-        error.put("message",
-                ex.getMessage());
-
-        return new ResponseEntity<>(
-                error,
+        return buildResponse(ex.getMessage(),
                 HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(AllocationException.class)
-    public ResponseEntity<Map<String, Object>>
-    handleAllocationException(
+    public ResponseEntity<Object> handleAllocationException(
             AllocationException ex) {
 
-        logger.warn(
-                "Allocation Exception: {}",
-                ex.getMessage());
+        return buildResponse(ex.getMessage(),
+                HttpStatus.BAD_REQUEST);
+    }
 
-        Map<String, Object> error =
-                new LinkedHashMap<>();
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<Object> handleAccessDenied(
+            AuthorizationDeniedException ex) {
 
-        error.put("timestamp",
-                LocalDateTime.now());
+        return buildResponse("Access Denied",
+                HttpStatus.FORBIDDEN);
+    }
 
-        error.put("status",
-                HttpStatus.BAD_REQUEST.value());
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> handleValidation(
+            MethodArgumentNotValidException ex) {
 
-        error.put("error",
-                "Allocation Error");
+        String errorMessage =
+                ex.getBindingResult()
+                  .getFieldError()
+                  .getDefaultMessage();
 
-        error.put("message",
-                ex.getMessage());
-
-        return new ResponseEntity<>(
-                error,
+        return buildResponse(errorMessage,
                 HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>>
-    handleGenericException(
+    public ResponseEntity<Object> handleException(
             Exception ex) {
 
-        logger.error(
-                "System Exception: {}",
-                ex.getMessage(),
-                ex);
+        return buildResponse(ex.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Object> handleResourceNotFound(
+            ResourceNotFoundException ex) {
 
-        Map<String, Object> error =
+        return buildResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND);
+    }
+
+    private ResponseEntity<Object> buildResponse(
+            String message,
+            HttpStatus status) {
+
+        Map<String, Object> body =
                 new LinkedHashMap<>();
 
-        error.put("timestamp",
-                LocalDateTime.now());
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", status.value());
+        body.put("error", status.getReasonPhrase());
+        body.put("message", message);
 
-        error.put("status",
-                HttpStatus.INTERNAL_SERVER_ERROR.value());
-
-        error.put("error",
-                "Internal Server Error");
-
-        error.put("message",
-                ex.getMessage());
-
-        return new ResponseEntity<>(
-                error,
-                HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(body, status);
     }
 }

@@ -3,7 +3,8 @@ package com.example.demo.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.UtilizationDTO;
@@ -16,26 +17,43 @@ import com.example.demo.service.DashboardService;
 @Service
 public class DashboardServiceImpl implements DashboardService {
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
+    private static final Logger logger =
+            LoggerFactory.getLogger(
+                    DashboardServiceImpl.class);
 
-    @Autowired
-    private AllocationRepository allocationRepository;
+    private final EmployeeRepository employeeRepository;
+    private final AllocationRepository allocationRepository;
+
+    public DashboardServiceImpl(
+            EmployeeRepository employeeRepository,
+            AllocationRepository allocationRepository) {
+
+        this.employeeRepository = employeeRepository;
+        this.allocationRepository = allocationRepository;
+    }
 
     @Override
     public List<UtilizationDTO> getUtilizationReport() {
 
+        logger.info("Generating employee utilization report");
+
         List<UtilizationDTO> result = new ArrayList<>();
 
-        List<Employee> employees = employeeRepository.findAll();
-        List<Allocation> allocations = allocationRepository.findAll();
+        List<Employee> employees =
+                employeeRepository.findAll();
+
+        List<Allocation> allocations =
+                allocationRepository.findAll();
 
         for (Employee employee : employees) {
 
             int billable = allocations.stream()
-                    .filter(a -> a.getEmployee().getEmployeeId()
-                            == employee.getEmployeeId())
-                    .mapToInt(Allocation::getAllocationPercentage)
+                    .filter(a ->
+                            a.getEmployee()
+                             .getEmployeeId()
+                             .equals(employee.getEmployeeId()))
+                    .mapToInt(
+                            Allocation::getAllocationPercentage)
                     .sum();
 
             int bench = 100 - billable;
@@ -45,7 +63,8 @@ public class DashboardServiceImpl implements DashboardService {
             }
 
             String employeeName =
-                    employee.getFirstname() + " "
+                    employee.getFirstname()
+                    + " "
                     + employee.getLastname();
 
             result.add(
@@ -56,6 +75,10 @@ public class DashboardServiceImpl implements DashboardService {
                     )
             );
         }
+
+        logger.info(
+                "Generated utilization report for {} employees",
+                result.size());
 
         return result;
     }

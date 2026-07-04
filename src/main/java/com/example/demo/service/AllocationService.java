@@ -13,5 +13,12 @@ public interface AllocationService {
 
     Allocation getAllocationById(Long id);
 
+    Allocation releaseEmployee(Long allocationId);
+
+    Allocation reallocateEmployee(
+            Long allocationId,
+            Long newProjectId,
+            Integer allocationPercentage);
+
     void deleteAllocation(Long id);
 }

@@ -3,6 +3,9 @@ package com.example.demo.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.EmployeeRequestDTO;
@@ -18,6 +21,9 @@ import com.example.demo.service.EmployeeService;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(EmployeeServiceImpl.class);
 
     private final EmployeeRepository employeeRepository;
     private final UserRepository userRepository;
@@ -35,18 +41,35 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeResponseDTO addEmployee(EmployeeRequestDTO employeeRequestDTO) {
 
+        logger.info("Adding employee with phone: {}",
+                employeeRequestDTO.getPhone());
+
         if (employeeRepository.findByPhone(employeeRequestDTO.getPhone()).isPresent()) {
+
+            logger.warn("Employee creation failed. Phone already exists: {}",
+                    employeeRequestDTO.getPhone());
+
             throw new RuntimeException("Phone number already exists");
         }
 
         User user = userRepository.findById(employeeRequestDTO.getUserId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> {
+
+                    logger.error("User not found with ID: {}",
+                            employeeRequestDTO.getUserId());
+
+                    return new ResourceNotFoundException("User not found");
+                });
 
         Department department = departmentRepository
                 .findById(employeeRequestDTO.getDepartmentId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Department not found"));
+                .orElseThrow(() -> {
+
+                    logger.error("Department not found with ID: {}",
+                            employeeRequestDTO.getDepartmentId());
+
+                    return new ResourceNotFoundException("Department not found");
+                });
 
         Employee employee = new Employee();
 
@@ -60,21 +83,33 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Employee savedEmployee = employeeRepository.save(employee);
 
+        logger.info("Employee created successfully with ID: {}",
+                savedEmployee.getEmployeeId());
+
         return mapToResponseDTO(savedEmployee);
     }
 
     @Override
     public EmployeeResponseDTO getEmployeeById(Long employeeId) {
 
+        logger.info("Fetching employee with ID: {}", employeeId);
+
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Employee not found"));
+                .orElseThrow(() -> {
+
+                    logger.error("Employee not found with ID: {}",
+                            employeeId);
+
+                    return new ResourceNotFoundException("Employee not found");
+                });
 
         return mapToResponseDTO(employee);
     }
 
     @Override
     public List<EmployeeResponseDTO> getAllEmployees() {
+
+        logger.info("Fetching all employees");
 
         List<Employee> employees = employeeRepository.findAll();
 
@@ -88,18 +123,35 @@ public class EmployeeServiceImpl implements EmployeeService {
             Long employeeId,
             EmployeeRequestDTO employeeRequestDTO) {
 
+        logger.info("Updating employee with ID: {}", employeeId);
+
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Employee not found"));
+                .orElseThrow(() -> {
+
+                    logger.error("Employee not found with ID: {}",
+                            employeeId);
+
+                    return new ResourceNotFoundException("Employee not found");
+                });
 
         User user = userRepository.findById(employeeRequestDTO.getUserId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> {
+
+                    logger.error("User not found with ID: {}",
+                            employeeRequestDTO.getUserId());
+
+                    return new ResourceNotFoundException("User not found");
+                });
 
         Department department = departmentRepository
                 .findById(employeeRequestDTO.getDepartmentId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Department not found"));
+                .orElseThrow(() -> {
+
+                    logger.error("Department not found with ID: {}",
+                            employeeRequestDTO.getDepartmentId());
+
+                    return new ResourceNotFoundException("Department not found");
+                });
 
         employee.setFirstname(employeeRequestDTO.getFirstName());
         employee.setLastname(employeeRequestDTO.getLastName());
@@ -110,17 +162,30 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Employee updatedEmployee = employeeRepository.save(employee);
 
+        logger.info("Employee updated successfully with ID: {}",
+                updatedEmployee.getEmployeeId());
+
         return mapToResponseDTO(updatedEmployee);
     }
 
     @Override
     public void deleteEmployee(Long employeeId) {
 
+        logger.info("Deleting employee with ID: {}", employeeId);
+
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Employee not found"));
+                .orElseThrow(() -> {
+
+                    logger.error("Employee not found with ID: {}",
+                            employeeId);
+
+                    return new ResourceNotFoundException("Employee not found");
+                });
 
         employeeRepository.delete(employee);
+
+        logger.info("Employee deleted successfully with ID: {}",
+                employeeId);
     }
 
     private EmployeeResponseDTO mapToResponseDTO(Employee employee) {
@@ -138,4 +203,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         return responseDTO;
     }
+
+	@Override
+	public Page<EmployeeResponseDTO> getEmployees(int page, int size, String sortBy, String direction, String keyword) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

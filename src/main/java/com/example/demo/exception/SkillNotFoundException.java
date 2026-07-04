@@ -1,11 +1,8 @@
 package com.example.demo.exception;
 
-public class SkillNotFoundException
-        extends RuntimeException {
+public class SkillNotFoundException extends RuntimeException {
 
-    public SkillNotFoundException(
-            String message) {
-
+    public SkillNotFoundException(String message) {
         super(message);
     }
 }

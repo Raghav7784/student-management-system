@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.ChangePasswordRequestDTO;
 import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
 import com.example.demo.dto.RegisterRequestDTO;
@@ -10,4 +11,7 @@ public interface AuthService {
 
     LoginResponseDTO login(LoginRequestDTO request);
 
+    String changePassword(ChangePasswordRequestDTO request);
+
+    String logout();
 }

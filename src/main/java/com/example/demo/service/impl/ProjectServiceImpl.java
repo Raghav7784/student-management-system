@@ -2,6 +2,7 @@ package com.example.demo.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.dto.ProjectRequestDTO;
 import com.example.demo.dto.ProjectResponseDTO;
 import com.example.demo.entity.Project;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.ProjectRepository;
 import com.example.demo.service.ProjectService;
 
@@ -21,45 +23,69 @@ public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository) {
+    public ProjectServiceImpl(
+            ProjectRepository projectRepository) {
+
         this.projectRepository = projectRepository;
     }
 
     @Override
-    public ProjectResponseDTO addProject(ProjectRequestDTO projectRequestDTO) {
+    public ProjectResponseDTO addProject(
+            ProjectRequestDTO projectRequestDTO) {
 
         if (projectRepository.findByProjectName(
-                projectRequestDTO.getProjectName()).isPresent()) {
+                projectRequestDTO.getProjectName())
+                .isPresent()) {
 
-            throw new RuntimeException("Project already exists");
+            throw new RuntimeException(
+                    "Project already exists");
         }
 
         Project project = new Project();
 
-        project.setProjectName(projectRequestDTO.getProjectName());
-        project.setClientName(projectRequestDTO.getClientName());
-        project.setDescription(projectRequestDTO.getDescription());
-        project.setStartDate(projectRequestDTO.getStartDate());
-        project.setEndDate(projectRequestDTO.getEndDate());
-        project.setStatus(projectRequestDTO.getStatus());
+        project.setProjectName(
+                projectRequestDTO.getProjectName());
+
+        project.setClientName(
+                projectRequestDTO.getClientName());
+
+        project.setDescription(
+                projectRequestDTO.getDescription());
+
+        project.setStartDate(
+                projectRequestDTO.getStartDate());
+
+        project.setEndDate(
+                projectRequestDTO.getEndDate());
+
+        project.setStatus(
+                projectRequestDTO.getStatus());
+
         project.setTechnologyStack(
                 projectRequestDTO.getTechnologyStack());
+
+        project.setBudget(
+                projectRequestDTO.getBudget());
 
         Project savedProject =
                 projectRepository.save(project);
 
-        logger.info("Project created: {}",
+        logger.info(
+                "Project created: {}",
                 savedProject.getProjectName());
 
         return mapToDTO(savedProject);
     }
 
     @Override
-    public ProjectResponseDTO getProjectById(Long projectId) {
+    public ProjectResponseDTO getProjectById(
+            Long projectId) {
 
-        Project project = projectRepository.findById(projectId)
+        Project project =
+                projectRepository.findById(projectId)
                 .orElseThrow(() ->
-                        new RuntimeException("Project not found"));
+                        new ResourceNotFoundException(
+                                "Project not found"));
 
         return mapToDTO(project);
     }
@@ -78,47 +104,95 @@ public class ProjectServiceImpl implements ProjectService {
             Long projectId,
             ProjectRequestDTO projectRequestDTO) {
 
-        Project project = projectRepository.findById(projectId)
+        Project project =
+                projectRepository.findById(projectId)
                 .orElseThrow(() ->
-                        new RuntimeException("Project not found"));
+                        new ResourceNotFoundException(
+                                "Project not found"));
 
-        project.setProjectName(projectRequestDTO.getProjectName());
-        project.setClientName(projectRequestDTO.getClientName());
-        project.setDescription(projectRequestDTO.getDescription());
-        project.setStartDate(projectRequestDTO.getStartDate());
-        project.setEndDate(projectRequestDTO.getEndDate());
-        project.setStatus(projectRequestDTO.getStatus());
+        project.setProjectName(
+                projectRequestDTO.getProjectName());
+
+        project.setClientName(
+                projectRequestDTO.getClientName());
+
+        project.setDescription(
+                projectRequestDTO.getDescription());
+
+        project.setStartDate(
+                projectRequestDTO.getStartDate());
+
+        project.setEndDate(
+                projectRequestDTO.getEndDate());
+
+        project.setStatus(
+                projectRequestDTO.getStatus());
+
         project.setTechnologyStack(
                 projectRequestDTO.getTechnologyStack());
 
+        project.setBudget(
+                projectRequestDTO.getBudget());
+
         Project updatedProject =
                 projectRepository.save(project);
+
+        logger.info(
+                "Project updated: {}",
+                updatedProject.getProjectName());
 
         return mapToDTO(updatedProject);
     }
 
     @Override
-    public void deleteProject(Long projectId) {
+    public void deleteProject(
+            Long projectId) {
 
-        Project project = projectRepository.findById(projectId)
+        Project project =
+                projectRepository.findById(projectId)
                 .orElseThrow(() ->
-                        new RuntimeException("Project not found"));
+                        new ResourceNotFoundException(
+                                "Project not found"));
 
         projectRepository.delete(project);
+
+        logger.info(
+                "Project deleted: {}",
+                project.getProjectName());
     }
 
-    private ProjectResponseDTO mapToDTO(Project project) {
+    private ProjectResponseDTO mapToDTO(
+            Project project) {
 
-        ProjectResponseDTO dto = new ProjectResponseDTO();
+        ProjectResponseDTO dto =
+                new ProjectResponseDTO();
 
-        dto.setProjectId(project.getProjectId());
-        dto.setProjectName(project.getProjectName());
-        dto.setClientName(project.getClientName());
-        dto.setDescription(project.getDescription());
-        dto.setStartDate(project.getStartDate());
-        dto.setEndDate(project.getEndDate());
-        dto.setStatus(project.getStatus());
-        dto.setTechnologyStack(project.getTechnologyStack());
+        dto.setProjectId(
+                project.getProjectId());
+
+        dto.setProjectName(
+                project.getProjectName());
+
+        dto.setClientName(
+                project.getClientName());
+
+        dto.setDescription(
+                project.getDescription());
+
+        dto.setStartDate(
+                project.getStartDate());
+
+        dto.setEndDate(
+                project.getEndDate());
+
+        dto.setStatus(
+                project.getStatus());
+
+        dto.setTechnologyStack(
+                project.getTechnologyStack());
+
+        dto.setBudget(
+                project.getBudget());
 
         return dto;
     }
