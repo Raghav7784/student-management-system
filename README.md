@@ -1,424 +1,268 @@
-Enterprise Resource Allocation & Skill Management System (ERASM)
-
-ERASM is a centralized Spring Boot platform designed to help IT service organizations manage employees, skills, projects, and resource allocation efficiently. It solves common project management pain points such as employees remaining on the bench without allocation, lack of visibility into employee competencies, manual allocation processes, and the absence of a centralized skill inventory or approval workflow.
-
-The application is built using Core Java, Spring Boot, Hibernate/JPA, and Spring Security (JWT), following layered architecture and industry-standard development practices.
-
-
-Table of Contents
-
-
-Problem Statement
-Technology Stack
-User Roles
-Modules & Features
-Project Structure
-Database Design
-JPA Relationships
-API Endpoints
-Security
-Logging
-Exception Handling
-Testing
-Non-Functional Requirements
-Git Workflow
-Prerequisites
-Installation
-Deliverables
-Evaluation Rubric
-License
-
-
-
-Problem Statement
-
-In IT service companies, project managers frequently face challenges in finding the right resources with appropriate skills and availability. Common problems include:
-
-
-Employees remaining on the bench without allocation
-Difficulty identifying employees with required skills
-Lack of visibility into employee competencies
-Manual resource allocation process
-No centralized skill inventory
-Lack of utilization tracking
-No approval workflow for resource allocation
-
-
-
-Technology Stack
-
-CategoryTechnologyLanguageCore JavaFrameworkSpring BootORMHibernate / JPASecuritySpring Security, JWT, BCryptDatabaseRelational DB (MySQL / PostgreSQL)TestingJUnit 5, MockitoLoggingSLF4J + LogbackBuild ToolMavenAPI TestingPostmanVersion ControlGit & GitHub
-
-
-User Roles
-
-1. Admin
-
-
-Manage Users
-Manage Roles
-Manage Skills
-View Reports
-Monitor Activities
-
-
-2. Delivery Manager
-
-
-Create Projects
-Raise Resource Requests
-Review Allocations
-Monitor Utilization
-
-
-3. Resource Manager
-
-
-Allocate Resources
-Approve Requests
-Reject Requests
-View Resource Availability
-
-
-4. Employee
-
-
-Update Profile
-Add Skills
-Add Certifications
-View Assignments
-
-
-5. Auditor
-
-
-View Audit Logs
-Generate Reports
-Track Activities
-
-
-
-Modules & Features
-
-Module 1: User Management
-
-
-Register / Login / Update / Delete User
-Change Password
-Assign Roles
-
-
-Validations: Email must be unique · Password minimum 8 characters · Role mandatory
-
-Module 2: Skill Management
-
-
-Add / Update / Delete Skill
-View Skill List
-
-
-Examples: Java, Spring Boot, React, Angular, AWS, Azure
-
-Module 3: Employee Skill Profile
-
-
-Add Skill
-Update Skill Level
-Add Experience
-Add Certifications
-
-
-SkillLevelJavaAdvancedSpring BootIntermediateReactBeginner
-
-Module 4: Project Management
-
-
-Create / Update / Close Project
-Assign Technologies
-
-
-Project details tracked: Project Name, Client Name, Start Date, End Date, Technology Stack, Budget
-
-Module 5: Resource Request Management
-
-Managers can raise resource requests specifying required skills and headcount.
-
-Example — Project: Healthcare Portal
-
-
-Required Skills: Java, Spring Boot, React
-Java Developers: 3
-React Developers: 2
-
-
-Module 6: Approval Workflow
-
-Draft
-  ↓
-Submitted
-  ↓
-Resource Manager Review
-  ↓
-Approved
-  ↓
-Allocated
-  ↓
-Completed
-
-Status is persisted in the database at every stage.
-
-Module 7: Resource Allocation
-
-
-Allocate / Reallocate / Release Employee
-
-
-Validation: An employee should not exceed 100% allocation.
-
-ScenarioAllocationResultProject A 60% + Project B 40%100%AllowedProject A 70% + Project B 50%120%Not Allowed
-
-Module 8: Utilization Dashboard
-
-Billable %: (Billable Hours / Total Hours) × 100
-
-Bench %: (Bench Hours / Total Hours) × 100
-
-Module 9: Audit Management
-
-Tracks Created By, Modified By, Created Date, Modified Date for every critical action.
-
-Module 10: Reports
-
-
-Skill Report — employees grouped by skill
-Utilization Report — employee utilization percentage
-Project Allocation Report — employees assigned to projects
-
-
-
-Project Structure
-
-src/
-├── main/
-│   ├── java/com/example/demo/
-│   │   ├── controller/
-│   │   ├── service/
-│   │   │   └── impl/
-│   │   ├── repository/
-│   │   ├── entity/
-│   │   ├── dto/
-│   │   ├── mapper/
-│   │   ├── security/
-│   │   ├── exception/
-│   │   ├── config/
-│   │   └── DemoApplication.java
-│   └── resources/
-│       ├── application.properties
-│       └── static/
-└── test/
-    └── java/com/example/demo/service/
-        ├── EmployeeServiceImplTest.java
-        ├── ProjectServiceImplTest.java
-        ├── AllocationServiceImplTest.java
-        ├── ResourceRequestServiceImplTest.java
-        ├── DashboardServiceImplTest.java
-        ├── AttendanceServiceImplTest.java
-        ├── LeaveServiceImplTest.java
-        └── PayrollServiceImplTest.java
-
-
-Database Design
-
-Tables
-
-
-users
-roles
-employees
-skills
-employee_skills
-certifications
-projects
-resource_requests
-allocations
-audit_logs
-
-
-
-JPA Relationships
-
-RelationshipMappingOne-To-OneUser ↔ EmployeeOne-To-ManyProject → ResourceRequestMany-To-OneEmployee → RoleMany-To-ManyEmployee ↔ Skill
-
-
-API Endpoints
-
-Authentication APIs
-
-POST /auth/register
-POST /auth/login
-POST /auth/logout
-
-Employee APIs
-
-GET    /employees
-GET    /employees/{id}
-POST   /employees
-PUT    /employees/{id}
-DELETE /employees/{id}
-
-Project APIs
-
-GET    /projects
-POST   /projects
-PUT    /projects/{id}
-DELETE /projects/{id}
-
-Allocation APIs
-
-POST /allocations
-PUT  /allocations/{id}
-GET  /allocations
-
-
-Security
-
-Mandatory security measures implemented:
-
-
-Spring Security
-JWT based authentication
-BCrypt password encryption
-Role-Based Access Control (RBAC)
-
-
-Method-level security example:
-
-java@PreAuthorize("hasRole('ADMIN')")
-@PreAuthorize("hasRole('MANAGER')")
-
-
-Logging
-
-Implemented using SLF4J + Logback.
-
-LevelEventsINFOUser Login, Project Creation, Resource AllocationWARNInvalid Request, Unauthorized AccessERRORSystem Exception, Database Failure
-
-Never logged: Password, JWT Token, Personal Information
-
-
-Exception Handling
-
-
-Global Exception Handler using @RestControllerAdvice
-
-
-Custom Exceptions:
-
-
-UserNotFoundException
-ProjectNotFoundException
-SkillNotFoundException
-AllocationException
-
-
-
-Testing
-
-Testing is implemented using JUnit 5 and Mockito, targeting a minimum of 80% code coverage.
-
-Covered service classes:
-
-
-Employee Service
-Project Service
-Allocation Service
-Resource Request Service
-Dashboard Service
-Attendance Service
-Leave Service
-Payroll Service
-
-
-
-Latest run: 59/59 tests passed — 0 errors, 0 failures (see Test Report deliverable for the full JUnit execution report).
-
-
-
-
-Non-Functional Requirements
-
-CategoryRequirementSecurityJWT Authentication, Password Encryption, RBACPerformanceAPI response time under 2 secondsScalabilitySupport 1000+ usersReliabilityCentralized error handling and loggingMaintainabilityLayered architecture, reusable components
-
-
-Git Workflow
-
-Branch Structure
-
-main
-develop
-feature/*
-release/*
-hotfix/*
-
-Commit Message Format
-
-feat: add login functionality
-fix: resolve JWT validation issue
-refactor: improve allocation logic
-
-
-Prerequisites
+# Enterprise Resource Allocation & Skill Management System (ERASM)
+
+The Enterprise Resource Allocation & Skill Management (ERASM) Platform is a modern enterprise backend application built with Spring Boot and Java 17. It provides a centralized system for employee management, skill tracking, project management, resource allocation, approval workflows, utilization reporting, and auditing.
+
+The application follows layered architecture and enterprise development principles, utilizing Spring Data JPA, Spring Security, JWT authentication, DTO/Mapper patterns, global exception handling, and structured logging.
+
+## Technology Stack
+
+- Java 17
+- Spring Boot 3.3.2
+- Spring Data JPA / Hibernate
+- MySQL
+- Spring Security
+- JWT (jjwt)
+- BCrypt
+- SLF4J + Logback
+- JUnit 5
+- Mockito
+- Maven
+
+## Features
+
+### Authentication
+- Register
+- Login
+- Logout
+- JWT-based session handling
+- Role-Based Access Control (RBAC)
+
+### User Management
+- Register User
+- Update User
+- Delete User
+- Change Password
+- Assign Roles
+
+### Skill Management
+- Add Skill
+- Update Skill
+- Delete Skill
+- View Skill List
+
+### Employee Skill Profile
+- Add Skill
+- Update Skill Level
+- Add Experience
+- Add Certifications
+
+### Project Management
+- Create Project
+- Update Project
+- Close Project
+- Assign Technologies
+
+### Resource Request Management
+- Raise Resource Requests
+- Define Required Skills & Headcount
+
+### Approval Workflow
+- Draft → Submitted → Resource Manager Review → Approved → Allocated → Completed
+
+### Resource Allocation
+- Allocate Employee
+- Reallocate Employee
+- Release Employee
+- 100% Allocation Cap Validation
+
+### Utilization Dashboard
+- Billable %
+- Bench %
+
+### Audit
+- Audit Logs
+- Created/Modified By & Timestamps
+
+### Reports
+- Skill Report
+- Utilization Report
+- Project Allocation Report
+
+## Project Structure
+
+
+com.erasm/
+├── controller/      # REST endpoints
+├── service/         # Business logic interfaces
+├── serviceimpl/      # Business logic implementations
+├── repository/      # Spring Data JPA repositories
+├── entity/          # JPA entities
+├── dto/             # Request/response DTOs
+├── mapper/          # Entity <-> DTO mapping
+├── security/        # JWT filter, UserDetailsService, SecurityConfig
+├── exception/        # Global exception handler + custom exceptions
+├── dashboard/        # Utilization dashboard controller/service
+└── Erasm1Application.java
+
+
+## Data Architecture
+
+Application state is persisted using Spring Data JPA with MySQL.
+
+### Core Entities
+- User
+- Role
+- Employee
+- Skill
+- EmployeeSkill
+- Certification
+- Project
+- ResourceRequest
+- Allocation
+- AuditLog
+
+### Entity Relationships
+- **One-to-One**: User ↔ Employee
+- **One-to-Many**: Project → ResourceRequest
+- **Many-to-One**: Employee → Role
+- **Many-to-Many**: Employee ↔ Skill
+
+## API Routing
+
+### Authentication Routes
+- POST /auth/register
+- POST /auth/login
+
+### Protected Routes
+- /api/users
+- /api/employees
+- /api/employee-skills
+- /api/skills
+- /api/skill-matching/{skillName}
+- /api/projects
+- /resource-requests
+- /api/allocations
+- /roles
+- /certifications
+- /api/auditlogs
+- /api/search
+- /dashboard
+
+Role-based access is implemented using:
+- @PreAuthorize("hasRole('ADMIN')")
+- @PreAuthorize("hasRole('MANAGER')")
+- Custom AuthenticationEntryPoint & AccessDeniedHandler
+
+## Database
+
+The application connects to a live MySQL database (no mock data layer).
+
+### Tables
+- users
+- roles
+- employees
+- skills
+- employee_skills
+- certifications
+- projects
+- resource_requests
+- allocations
+- audit_logs
+
+## Performance & Reliability
+
+The application includes the following non-functional guarantees:
+- API response time under 2 seconds
+- Support for 1000+ concurrent users
+- Layered, reusable architecture for maintainability
+- Centralized error handling
+- Structured logging
+
+## Error Handling
+
+Implemented error handling includes:
+- Global Exception Handler (@RestControllerAdvice)
+- Custom Exceptions: UserNotFoundException, ResourceNotFoundException, SkillNotFoundException, AllocationException
+- Validation Exception Handler
+- Consistent API error responses
+
+## Logging
+
+SLF4J + Logback, writing to `logs/erasm.log`.
+
+- **INFO** — user login, project creation, resource allocation
+- **WARN** — invalid requests, unauthorized access attempts
+- **ERROR** — system exceptions, database failures
+- Passwords, JWT tokens, and personal information are never logged
+
+## Testing
+
+Testing is implemented using:
+- JUnit 5
+- Mockito
+- Spring Security Test
+
+Covered modules include:
+- Controllers (User, Employee, Project, Allocation, Skill, Resource Request, Authentication, etc.)
+- Services (Skill, Allocation, Resource Request, User, Audit Log, Skill Matching, Auth, Project, Employee)
+- Global Exception Handler
+- Validation Exception Handler
+- Application Context Load
+
+## Prerequisites
 
 Before running the project, ensure you have installed:
+- Java 17 or later
+- Maven 3.8 or later
+- MySQL 8 or later
 
-
-Java 17 or later
-Maven 3.8 or later
-MySQL / PostgreSQL (or your configured RDBMS)
-
-
-
-Installation
+## Installation
 
 Clone the repository:
+bash
+git clone https://github.com/nitheshnithesh596-lgtm/ERASM1.git
 
-bashgit clone https://github.com/<your-username>/erasm-platform.git
 
-Navigate to the project directory:
+Navigate to the project directory:bash
+cd ERASM1
 
-bashcd erasm-platform
 
-Configure the database connection in src/main/resources/application.properties.
+Configure the database in `application.properties`:
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/erasm
+spring.datasource.username=root
+spring.datasource.password=newpassword123
+```
 
 Build the project:
-
-bashmvn clean install
+```bash
+./mvnw clean install
+```
 
 Run the application:
-
-bashmvn spring-boot:run
+```bash
+./mvnw spring-boot:run
+```
 
 Run the test suite:
+```bash
+./mvnw test
+```
 
-bashmvn test
+The API will start on `http://localhost:8080`.
 
+## Project Deliverables
 
-Deliverables
+- Source Code
+- Documentation (Project Overview, ER Diagram, API List, Screenshots, Test Cases)
+- SQL Database Creation Script
+- Postman Collection
+- JUnit Test Execution Report
 
+## Future Enhancements
 
-Source Code (GitHub Repository Link)
-Documentation (Project Overview, Problem Statement, Database Design, ER Diagram, API List, Screenshots, Test Cases)
-SQL Script (Database Creation Script)
-Postman Collection (all APIs exported)
-Test Report (JUnit Test Execution Report)
+- Frontend Integration (React Dashboard)
+- Real-Time Notifications
+- Multi-Tenant Support
+- Advanced Analytics Dashboard
+- Export Reports (PDF & Excel)
+- Email Notifications for Approvals
+- CI/CD Pipeline Integration
 
+## Author
 
+Raghav Bhat
 
-Evaluation Rubric
-
-CriteriaMarksJava Coding Standards10OOP Concepts10Database Design10Hibernate/JPA10Spring Boot APIs15Security15Exception Handling5Logging5Testing10Git Usage5Documentation5Total100
-
-
-License
+## License
 
 This project is developed for educational, demonstration, and portfolio purposes.
