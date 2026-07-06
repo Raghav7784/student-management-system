@@ -210,11 +210,11 @@ Before running the project, ensure you have installed:
 
 Clone the repository:
 bash
-git clone https://github.com/nitheshnithesh596-lgtm/ERASM1.git
+git clone https://github.com/Raghav7784/student-management-system
 
 
 Navigate to the project directory:bash
-cd ERASM1
+cd studentmanagement-1
 
 
 Configure the database in `application.properties`:
